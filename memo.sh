@@ -1,10 +1,11 @@
 ###############################################################################
 # memo.sh ─ Quick daily-note helpers
 #
-# Provides three convenience commands once sourced:
+# Provides four convenience commands once sourced:
 #   memo        → open ~/memo/YYYYMMDD.txt (or YYYYMMDD_<slug>.txt) in $EDITOR
 #   ml          → open the ~/memo directory itself in $EDITOR
 #   mg PATTERN  → search every file in ~/memo with ripgrep (rg)
+#   mr [N]      → show the first few lines from the N most recent notes (default: 7)
 #
 # Customisation:
 #   • Set MEMO_DIR before sourcing to change the note location.
@@ -53,5 +54,17 @@ mg() {
     return 1
   fi
   rg "$@" "$MEMO_DIR"
+}
+
+###############################################################################
+# mr ─ show lines from the N most recently modified memo files
+###############################################################################
+mr() {
+  local n="${1:-7}"
+  ls -1t "$MEMO_DIR" | head -n "$n" | while IFS= read -r f; do
+    printf '==> %s <==\n' "$f"
+    head -n 5 "$MEMO_DIR/$f"
+    echo
+  done
 }
 

@@ -86,7 +86,7 @@ mf() {
   if command -v bat >/dev/null 2>&1; then
     preview_cmd='bat --style=numbers --color=always --line-range {2}:+200 {1}'
   else
-    preview_cmd='sed -n "{2},+200p" {1}'
+    preview_cmd='tail -n +{2} "{1}" | head -n 200'
   fi
 
   local selection file line

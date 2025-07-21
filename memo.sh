@@ -1,11 +1,12 @@
 ###############################################################################
 # memo.sh ─ Quick daily-note helpers
 #
-# Provides four convenience commands once sourced:
+# Provides five convenience commands once sourced:
 #   memo        → open ~/memo/YYYYMMDD.txt (or YYYYMMDD_<slug>.txt) in $EDITOR
 #   ml          → open the ~/memo directory itself in $EDITOR
 #   mg PATTERN  → search every file in ~/memo with ripgrep (rg)
 #   mr [N]      → show the first few lines from the N most recent notes (default: 7)
+#   mf          → fuzzy-pick an existing note with fzf
 #
 # Customisation:
 #   • Set MEMO_DIR before sourcing to change the note location.
@@ -66,5 +67,19 @@ mr() {
     head -n 5 "$MEMO_DIR/$f"
     echo
   done
+}
+
+###############################################################################
+# mf ─ fuzzy-pick a memo file to open with fzf
+###############################################################################
+mf() {
+  if ! command -v fzf >/dev/null 2>&1; then
+    printf 'mf: fzf is not installed or not in PATH\n' >&2
+    return 1
+  fi
+
+  local file
+  file=$(ls -1 "$MEMO_DIR"/*.txt 2>/dev/null | fzf) || return
+  [ -n "$file" ] && _memo_open "$file"
 }
 

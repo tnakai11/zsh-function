@@ -84,15 +84,18 @@ mf() {
 
   local preview_cmd
   if command -v bat >/dev/null 2>&1; then
-    preview_cmd='bat --style=numbers --color=always {} | head -200'
+    preview_cmd='bat --style=numbers --color=always --line-range {2}:+200 {1}'
   else
-    preview_cmd='cat {} | head -200'
+    preview_cmd='sed -n "{2},+200p" {1}'
   fi
 
-  local file
-  file=$(rg --files "$MEMO_DIR" | fzf --preview "$preview_cmd")
-  if [ -n "$file" ]; then
-    _memo_open "$file"
+  local selection file line
+  selection=$(rg --no-heading --line-number --color=never '' "$MEMO_DIR" |
+    fzf --delimiter ':' --preview "$preview_cmd")
+  if [ -n "$selection" ]; then
+    file="$(printf '%s' "$selection" | cut -d':' -f1)"
+    line="$(printf '%s' "$selection" | cut -d':' -f2)"
+    _memo_open "+$line" "$file"
   fi
 }
 

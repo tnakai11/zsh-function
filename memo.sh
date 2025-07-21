@@ -1,11 +1,12 @@
 ###############################################################################
 # memo.sh ─ Quick daily-note helpers
 #
-# Provides four convenience commands once sourced:
+# Provides five convenience commands once sourced:
 #   memo        → open ~/memo/YYYYMMDD.txt (or YYYYMMDD_<slug>.txt) in $EDITOR
 #   ml          → open the ~/memo directory itself in $EDITOR
 #   mg PATTERN  → search every file in ~/memo with ripgrep (rg)
 #   mr [N]      → show the first few lines from the N most recent notes (default: 7)
+#   mf          → fuzzy-pick a note using fzf (previews via bat when available)
 #
 # Customisation:
 #   • Set MEMO_DIR before sourcing to change the note location.
@@ -66,5 +67,32 @@ mr() {
     head -n 5 "$MEMO_DIR/$f"
     echo
   done
+}
+
+###############################################################################
+# mf ─ fuzzy find a memo file using fzf and preview it with bat if available
+###############################################################################
+mf() {
+  if ! command -v fzf >/dev/null 2>&1; then
+    printf 'mf: fzf is not installed or not in PATH\n' >&2
+    return 1
+  fi
+  if ! command -v rg >/dev/null 2>&1; then
+    printf 'mf: ripgrep (rg) is not installed or not in PATH\n' >&2
+    return 1
+  fi
+
+  local preview_cmd
+  if command -v bat >/dev/null 2>&1; then
+    preview_cmd='bat --style=numbers --color=always {} | head -200'
+  else
+    preview_cmd='cat {} | head -200'
+  fi
+
+  local file
+  file=$(rg --files "$MEMO_DIR" | fzf --preview "$preview_cmd")
+  if [ -n "$file" ]; then
+    _memo_open "$file"
+  fi
 }
 

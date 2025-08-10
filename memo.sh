@@ -2,7 +2,7 @@
 # memo.sh ─ Quick daily-note helpers
 #
 # Provides five convenience commands once sourced:
-#   memo        → open ~/memo/YYYYMMDD.txt (or YYYYMMDD_<slug>.txt) in $EDITOR
+#   memo        → open ~/memo/YYYY-MM-DD.txt (or YYYY-MM-DD_<slug>.txt) in $EDITOR
 #   ml          → open the ~/memo directory itself in $EDITOR
 #   mg PATTERN  → search every file in ~/memo with ripgrep (rg)
 #   mr [N]      → show the first few lines from the N most recent notes (default: 7)
@@ -27,7 +27,7 @@ _memo_open() {
 memo() {
   mkdir -p "$MEMO_DIR"                 # ensure the target directory exists
   local ymd
-  ymd="$(date +%Y%m%d)"                # today’s date, YYYYMMDD
+  ymd="$(date +%Y-%m-%d)"              # today’s date, YYYY-MM-DD
 
   if [ "$#" -eq 0 ]; then
     _memo_open "$MEMO_DIR/${ymd}.txt"
